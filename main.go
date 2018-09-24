@@ -11,28 +11,23 @@ import (
 	_ "github.com/tokopedia/dexter/profx/integration"
 )
 
-var memsize int
+var memthreshold int
 var commands []string
 
 func initializeFlag() {
-	pflag.IntVarP(&memsize, "memsize", "M", 500000, "Max Memory Size")
+	pflag.IntVarP(&memthreshold, "memory", "M", 500000, "Max Memory Size")
 	pflag.StringArrayVarP(&commands, "commands", "C", []string{}, "Commands")
 }
 
 func startAntioom() {
-	aoInstance := antioom.New(memsize, 1)
+	aoInstance := antioom.New(memthreshold, 1)
 	for _, c := range commands {
 		aoInstance.AddBashCommand(c)
 	}
 	aoInstance.Run()
 }
 
-func main() {
-	initializeFlag()
-	pflag.Parse()
-
-	startAntioom()
-
+func run() {
 	signal_chan := make(chan os.Signal, 1)
 	signal.Notify(signal_chan,
 		syscall.SIGINT,
@@ -60,6 +55,14 @@ func main() {
 		}
 	}()
 
-	code := <-exit_chan
-	os.Exit(code)
+	<-exit_chan
+}
+
+func main() {
+	initializeFlag()
+	pflag.Parse()
+
+	startAntioom()
+
+	run()
 }
