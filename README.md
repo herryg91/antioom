@@ -8,7 +8,7 @@ Run the Service:
 ./antioom -M=500000 -C="service memleaker1 restart" -C="service memleaker1 restart"
 
 args:
--M or --memory = memory threshold. if memory size under the threshold, commands (-C) will be trigerred
+-M or --memory = memory threshold (in bytes). if memory size under the threshold, commands (-C) will be trigerred
 -C or --commands = bash command which will triggered when memory under the threshold
 ```
 
