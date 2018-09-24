@@ -19,7 +19,7 @@ func initializeFlag() {
 	pflag.StringArrayVarP(&commands, "commands", "C", []string{}, "Commands")
 }
 
-func startAntioom() {
+func runAntiOOM() {
 	aoInstance := antioom.New(memthreshold, 1)
 	for _, c := range commands {
 		aoInstance.AddBashCommand(c)
@@ -27,7 +27,7 @@ func startAntioom() {
 	aoInstance.Run()
 }
 
-func run() {
+func waitForSignal() {
 	signal_chan := make(chan os.Signal, 1)
 	signal.Notify(signal_chan,
 		syscall.SIGINT,
@@ -61,8 +61,6 @@ func run() {
 func main() {
 	initializeFlag()
 	pflag.Parse()
-
-	startAntioom()
-
-	run()
+	runAntiOOM()
+	waitForSignal()
 }
