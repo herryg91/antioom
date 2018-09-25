@@ -21,6 +21,7 @@ func New(memoryThreshold int, checkMemoryDuration int) (instance *Instance) {
 	instance = &Instance{
 		memoryThreshold:     memoryThreshold,
 		checkMemoryDuration: checkMemoryDuration,
+		bashCommand:         []string{},
 	}
 	if instance.checkMemoryDuration <= 0 {
 		instance.checkMemoryDuration = 1
@@ -29,6 +30,7 @@ func New(memoryThreshold int, checkMemoryDuration int) (instance *Instance) {
 	return
 }
 
+// Run run the antioom instance
 func (i *Instance) Run() {
 	log.Println("Run Anti OOM")
 	onCheck := false
@@ -61,18 +63,20 @@ func (i *Instance) Run() {
 	cronClient.Start()
 }
 
+// getCurrentFreeMemory check current server memory (ubuntu)
 func getCurrentFreeMemory() (freeMemory int, err error) {
-	freeMemory = -1
-
 	cmd := exec.Command("/bin/bash", "-c", "cat /proc/meminfo | grep MemAvailable | awk '{print $2}'")
 	output, errOutput := cmd.Output()
 	if errOutput != nil {
 		err = errOutput
+		freeMemory = -1
 		return
 	}
 	freeMemoryStr := strings.Trim(string(output), "\n")
 	freeMemory, err = strconv.Atoi(freeMemoryStr)
-
+	if err != nil {
+		freeMemory = -1
+	}
 	return
 }
 
